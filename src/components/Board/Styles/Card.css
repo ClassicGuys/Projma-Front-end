@@ -35,3 +35,8 @@
   height: 3.5rem;
   border-radius: 50%;
 }
+
+.dragged-item {
+  background-color: #fff;
+  opacity: 0;
+}

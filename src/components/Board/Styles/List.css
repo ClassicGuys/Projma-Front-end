@@ -53,16 +53,17 @@ p {
   text-align: center;
 }
 
-.button-title {
-  margin: 0.2rem;
-  color: white;
-}
-
-.card-list {
+.drop_wrapper-card-list {
   max-height: 70vh;
   overflow-y: scroll;
   margin-bottom: 0.4rem;
   padding: 0.6rem;
+  /* padding-bottom: 1rem; */
+}
+
+.button-title {
+  margin: 0.2rem;
+  color: white;
 }
 
 .space {
@@ -96,7 +97,7 @@ p {
   .list {
     max-height: fit-content;
   }
-  .card-list {
+  .drop_wrapper-card-list {
     overflow-x: auto;
     max-height: 30rem;
   }
