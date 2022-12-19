@@ -8,6 +8,7 @@ import apiInstance from "../../../utilities/axiosConfig";
 import InvitationHeader from "../InvitationHeader/InvitationHeader";
 import { v4 as uuid } from "uuid";
 import axios from "axios";
+import { range, orderBy } from "lodash";
 import Loading from "../../Shared/Loading";
 import { toast, ToastContainer } from "react-toastify";
 import "../../../styles/ReactToastify.css";
@@ -20,6 +21,7 @@ const Board = (props) => {
   const [isFail, setIsFail] = useState(false);
 
   useEffect(() => {
+    console.log("useEffect");
     const getBoard = async () =>
       await apiInstance
         .get(`workspaces/board/${props.boardId}/get-board-overview/`)
@@ -27,7 +29,8 @@ const Board = (props) => {
           // console.log(response.data);
           // console.log(response.data.tasklists);
           console.log(props.boardId);
-          setLists(response.data.tasklists);
+          console.log(response.data.tasklists);
+          setLists(response.data.tasklists.sort((a, b) => b.order - a.order));
         })
         .finally(() => {
           setIsPost(null);
@@ -79,13 +82,97 @@ const Board = (props) => {
   };
 
   const onPostHandler = (isa) => {
-    console.log("Board isa ",isa);
+    console.log("Board isa ", isa);
     setIsPost(isa);
   };
 
   const dragHandler = (result) => {
-    const [destination, source, draggableId, type] = result;
-    if (!destination) return;
+    const destination = result.destination;
+    const source = result.source;
+    console.log("result ", result);
+    if (!destination || !source) {
+      console.log("hey");
+      return;
+    }
+    if (result.type === "list") {
+      const newList = Array.from(lists);
+      console.log(lists);
+      const [removed] = newList.splice(source.index, 1);
+      newList.splice(destination.index, 0, removed);
+      setLists(newList);
+      return;
+    }
+    console.log(result);
+
+    console.log("destination ", destination);
+    console.log("source ", source);
+
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      console.log("in self position");
+      return;
+    }
+    const start = lists.find(
+      (list) => list.id === parseInt(source.droppableId)
+    );
+    const finish = lists.find(
+      (list) => list.id === parseInt(destination.droppableId)
+    );
+    console.log("shoroo");
+    console.log(start);
+    console.log(finish);
+    if (start === finish) {
+      const newTasks = Array.from(start.tasks);
+      console.log(newTasks);
+      // console.log(newTasks[0]);
+      let temp = newTasks[source.index];
+      // console.log(source.index);
+      // console.log(temp);
+      newTasks.splice(source.index, 1);
+      newTasks.splice(destination.index, 0, temp);
+      console.log(newTasks);
+      const newStart = {
+        ...start,
+        tasks: newTasks,
+      };
+      console.log(newStart);
+      const newState = lists.map((list) => {
+        if (list.id === newStart.id) {
+          return newStart;
+        }
+        return list;
+      });
+      console.log(newState);
+      setLists(newState);
+      return;
+    } else {
+      const startTasks = Array.from(start.tasks);
+      const finishTasks = Array.from(finish.tasks);
+      const [removed] = startTasks.splice(source.index, 1);
+      finishTasks.splice(destination.index, 0, removed);
+      const newStart = {
+        ...start,
+        tasks: startTasks,
+      };
+      const newFinish = {
+        ...finish,
+        tasks: finishTasks,
+      };
+      const newState = lists.map((list) => {
+        if (list.id === newStart.id) {
+          return newStart;
+        }
+        if (list.id === newFinish.id) {
+          return newFinish;
+        }
+        return list;
+      });
+      console.log(newState);
+      setLists(newState);
+      return;
+    }
   };
 
   return (
@@ -97,40 +184,41 @@ const Board = (props) => {
           <ToastContainer autoClose={5000} style={{ fontSize: "1.2rem" }} />
         ) : null}
         {/* <div className="Board_list-container-dir"> */}
-          <Droppable
-            droppableId={uuid().toString()}
-            type="list"
-            direction="horizontal"
-          >
-            {(provided, snapshot) => (
-              <div
-                className="board_list-container-box"
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                style={
-                  snapshot.isUsingPlaceholder
-                    ? {
-                        backgroundColor: "var(--hover-color)",
-                        borderRadius: "0.5rem",
-                      }
-                    : null
-                }
-              >
-                {lists.slice(0).reverse().map((list, index) => (
-                  <List
-                    name={list.title}
-                    key={list.id}
-                    id={list.id}
-                    index={index}
-                    card={list.tasks}
-                    boardId={props.boardId}
-                    onPost={onPostHandler}
-                  />
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
+        <Droppable
+          droppableId={uuid().toString()}
+          type="list"
+          direction="horizontal"
+        >
+          {(provided, snapshot) => (
+            <div
+              className="board_list-container-box"
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              style={
+                snapshot.isUsingPlaceholder
+                  ? {
+                      backgroundColor: "var(--hover-color)",
+                      borderRadius: "0.5rem",
+                    }
+                  : null
+              }
+            >
+              {lists.map((list, index) => (
+                <List
+                  name={list.title}
+                  key={list.id}
+                  id={list.id}
+                  index={index}
+                  card={list.tasks}
+                  boardId={props.boardId}
+                  onPost={onPostHandler}
+                />
+              ))}
+              {/* {listRenderer} */}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
         {/* </div> */}
         <div className="board_add-container">
           {!isclicked ? (

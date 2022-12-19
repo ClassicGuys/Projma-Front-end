@@ -35,6 +35,17 @@ const List = (props) => {
     setIsOpen(false);
   }, [isPost]);
 
+  useEffect(() => {
+    setCards(props.card);
+    // const order = [];
+    // props.card.map((card) => order.push(card.id));
+    // console.log("order");
+    // console.log(order);
+    // apiInstance.put(`workspaces/tasklist/${props.id}/reorder-tasks/`, {
+    //   order: order,
+    // });
+  }, [props.card]);
+
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
 
@@ -149,7 +160,7 @@ const List = (props) => {
   };
 
   const onPostHandler = (isa) => {
-    console.log("List isa ",isa);
+    console.log("List isa ", isa);
     props.onPost(isa);
   };
 
@@ -162,7 +173,7 @@ const List = (props) => {
   };
 
   return (
-    <Draggable draggableId={String(props.id)+props.name} index={props.index}>
+    <Draggable draggableId={String(props.id) + props.name} index={props.index}>
       {(provided) => (
         <div
           className="board_list"

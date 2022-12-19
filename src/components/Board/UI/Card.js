@@ -100,7 +100,11 @@ const Card = (props) => {
   // };
 
   return (
-    <Draggable draggableId={String(props.id)} index={props.index}>
+    <Draggable
+      draggableId={String(props.id)}
+      index={props.index}
+      key={String(props.id)}
+    >
       {(provided) => (
         <div
           className="board_card"
