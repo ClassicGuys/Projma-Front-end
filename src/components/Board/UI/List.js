@@ -20,6 +20,7 @@ import apiInstance from "../../../utilities/axiosConfig";
 
 const List = (props) => {
   const [cards, setCards] = useState(props.card);
+  // const [cards, setCards] = useState(props.card);
   const [isclicked, setIsclicked] = useState(false);
   const [inputName, setInputName] = useState("");
   const [isToast, setIsToast] = useState(false);
@@ -37,13 +38,6 @@ const List = (props) => {
 
   useEffect(() => {
     setCards(props.card);
-    // const order = [];
-    // props.card.map((card) => order.push(card.id));
-    // console.log("order");
-    // console.log(order);
-    // apiInstance.put(`workspaces/tasklist/${props.id}/reorder-tasks/`, {
-    //   order: order,
-    // });
   }, [props.card]);
 
   const open = Boolean(anchorEl);
